@@ -1,0 +1,91 @@
+#include <OneWire.h>
+#include <DallasTemperature.h>
+ 
+// Data wire is plugged into pin 2 on the Arduino
+#define ONE_WIRE_BUS 5
+ 
+// Setup a oneWire instance to communicate with any OneWire devices 
+// (not just Maxim/Dallas temperature ICs)
+OneWire oneWire(ONE_WIRE_BUS);
+ 
+// Pass our oneWire reference to Dallas Temperature.
+DallasTemperature sensors(&oneWire);
+
+int red=4;
+int green=3;
+
+void setup(void)
+{
+  // start serial port
+  Serial.begin(9600);
+
+  // Start up the library
+  sensors.begin();
+
+ 
+  pinMode (red,OUTPUT);
+  pinMode (green,OUTPUT);
+  //pinMode (yellow,OUTPUT);
+  Serial.begin (9600);}
+  
+void loop(void)
+{
+//Temperature
+  // call sensors.requestTemperatures() to issue a global temperature
+  // request to all devices on the bus
+  sensors.requestTemperatures(); // Send the command to get temperatures
+
+  Serial.print("Temperature is: ");
+  Serial.println(sensors.getTempCByIndex(0)); // Why "byIndex"? 
+    // You can have more than one IC on the same bus. 
+    // 0 refers to the first IC on the wire
+    
+
+
+//Water level
+    // read the input on analog pin 0:
+  int value = analogRead(A0);
+  
+  if (value > 450) {
+    Serial.print("Water level too high. ");
+    digitalWrite (red,HIGH);
+    digitalWrite (green,LOW);
+    }
+  else if ((value > 10) && (value <= 450)) {
+    Serial.print("Water level average. ");
+    digitalWrite (green,HIGH);
+    digitalWrite (red,LOW);
+    }
+  else{
+    Serial.print("Water level too low. ");
+    digitalWrite (red,HIGH);
+    digitalWrite (green,LOW);
+  }
+  Serial.println(value);
+  
+  
+
+//Light sensor
+  // reads the input on analog pin A0 (value between 0 and 1023)
+  int analogValue = analogRead(A1);
+
+  Serial.print("Light level: ");
+  Serial.print(analogValue);   // the raw analog reading
+  
+    // We'll have a few threshholds, qualitatively determined
+  if (analogValue < 10) {
+    Serial.println("Dark");
+  } else if (analogValue < 200) {
+    Serial.println("Dim");
+  } else if (analogValue < 500) {
+    Serial.println("Light");
+  } else if (analogValue < 800) {
+    Serial.println("Bright");
+  } else {
+    Serial.println("Very bright");
+  }
+  Serial.println();
+  delay(1000);
+  
+
+}
